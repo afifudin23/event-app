@@ -1,6 +1,10 @@
 package users
 
-import "event-app/internal/users/dto"
+import (
+	"event-app/internal/users/dto"
+
+	"github.com/google/uuid"
+)
 
 func ToResponse(user User) dto.UserResponse {
 	return dto.UserResponse{
@@ -22,27 +26,9 @@ func ToListResponse(users []User) dto.UserListResponse {
 	}
 }
 
-func ToLoginResponse(user User, accessToken string) dto.UserLoginResponse {
-	return dto.UserLoginResponse{
-		User:        ToResponse(user),
-		AccessToken: accessToken,
+func ToSuccessResponse(id uuid.UUID) dto.SuccessResponse {
+	return dto.SuccessResponse{
+		ID: id,
 	}
 }
 
-func ToCreateResponse(success bool) dto.SuccessResponse {
-	return dto.SuccessResponse{
-		Created: &success,
-	}
-}
-
-func ToUpdateResponse(success bool) dto.SuccessResponse {
-	return dto.SuccessResponse{
-		Updated: &success,
-	}
-}
-
-func ToDeleteResponse(success bool) dto.SuccessResponse {
-	return dto.SuccessResponse{
-		Deleted: &success,
-	}
-}

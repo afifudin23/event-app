@@ -1,4 +1,6 @@
 -- Active: 1766584932523@@127.0.0.1@5432@event_app@public
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE IF NOT EXISTS users (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     fullname VARCHAR(255) NOT NULL,

@@ -2,13 +2,16 @@ package users
 
 import (
 	"event-app/internal/common"
+	"event-app/internal/users/dto"
+
+	"github.com/google/uuid"
 )
 
 type Service interface {
 	FindAll() ([]User, error)
 	FindByID(id string) (*User, error)
-	Create(user User) (bool, error)
-	Update(id string, user User) (bool, error)
+	Create(payload dto.UserRequest) (uuid.UUID, error)
+	Update(id string, payload dto.UserRequest) (uuid.UUID, error)
 	Delete(id string) (bool, error)
 }
 
@@ -32,19 +35,41 @@ func (s *service) FindByID(id string) (*User, error) {
 	return user, err
 }
 
-func (s *service) Create(payload User) (bool, error) {
-	return s.Repo.Create(payload)
+func (s *service) Create(payload dto.UserRequest) (uuid.UUID, error) {
+	if _, err := s.Repo.GetByEmail(payload.Email); err == nil {
+		return uuid.Nil, common.BadRequestError("Email already exists")
+	}
+	hashedPassword, err := common.HashPassword(payload.Password)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return s.Repo.Create(User{
+		Fullname: payload.Fullname,
+		Email:    payload.Email,
+		Password: hashedPassword,
+	})
 }
 
-func (s *service) Update(id string, payload User) (bool, error) {
+func (s *service) Update(id string, payload dto.UserRequest) (uuid.UUID, error) {
 	user, err := s.Repo.GetByID(id)
 	if err != nil {
-		return false, common.NotFoundError("User not found")
+		return uuid.Nil, common.NotFoundError("User not found")
 	}
 
+	// CHECK DUPLICATE EMAIL
+	existingEmail, err := s.Repo.GetByEmail(payload.Email)
+	if err == nil && existingEmail.ID != user.ID {
+		return uuid.Nil, common.BadRequestError("Email already exists")
+	}
+
+	// UPDATE
+	hashedPassword, err := common.HashPassword(payload.Password)
+	if err != nil {
+		return uuid.Nil, err
+	}
 	user.Fullname = payload.Fullname
 	user.Email = payload.Email
-	user.Password = payload.Password
+	user.Password = hashedPassword
 	return s.Repo.Update(*user)
 }
 

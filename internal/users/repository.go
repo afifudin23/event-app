@@ -1,12 +1,16 @@
 package users
 
-import "gorm.io/gorm"
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
 
 type Repository interface {
 	GetAll() ([]User, error)
 	GetByID(id string) (*User, error)
-	Create(user User) (bool, error)
-	Update(user User) (bool, error)
+	GetByEmail(id string) (*User, error)
+	Create(user User) (uuid.UUID, error)
+	Update(user User) (uuid.UUID, error)
 	Delete(id string) (bool, error)
 }
 
@@ -24,9 +28,9 @@ func (r *repository) GetAll() ([]User, error) {
 	return users, err
 }
 
-func (r *repository) Create(user User) (bool, error) {
+func (r *repository) Create(user User) (uuid.UUID, error) {
 	err := r.DB.Create(&user).Error
-	return err == nil, err
+	return user.ID, err
 }
 
 func (r *repository) GetByID(id string) (*User, error) {
@@ -38,9 +42,18 @@ func (r *repository) GetByID(id string) (*User, error) {
 	return &user, err
 }
 
-func (r *repository) Update(user User) (bool, error) {
+func (r *repository) GetByEmail(email string) (*User, error) {
+	var user User
+	err := r.DB.First(&user, "email = ?", email).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, err
+}
+
+func (r *repository) Update(user User) (uuid.UUID, error) {
 	err := r.DB.Save(&user).Error
-	return err == nil, err
+	return user.ID, err
 }
 
 func (r *repository) Delete(id string) (bool, error) {

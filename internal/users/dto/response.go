@@ -18,13 +18,6 @@ type UserListResponse struct {
 	Users []UserResponse `json:"users"`
 }
 
-type UserLoginResponse struct {
-	User        UserResponse `json:"user"`
-	AccessToken string       `json:"access_token"`
-}
-
 type SuccessResponse struct {
-	Created *bool `json:"created,omitempty"`
-	Updated *bool `json:"updated,omitempty"`
-	Deleted *bool `json:"deleted,omitempty"`
+	ID uuid.UUID `json:"id"`
 }

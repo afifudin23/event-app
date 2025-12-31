@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Handler struct {
@@ -54,43 +55,38 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	success, err := h.Service.Create(User{
-		Fullname: payload.Fullname,
-		Email:    payload.Email,
-		Password: payload.Password,
-	})
+	id, err := h.Service.Create(payload)
+
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, common.SuccessResponse(ToCreateResponse(success)))
+	c.JSON(http.StatusCreated, common.SuccessResponse(ToSuccessResponse(id)))
 }
 
 func (h *Handler) UpdateUser(c *gin.Context) {
 	var params Params
+	var payload dto.UserRequest
+
 	if err := c.ShouldBindUri(&params); err != nil {
 		details := common.ErrorValidation(err)
 		common.ErrorHandler(c, common.BadRequestError(details))
 		return
 	}
-	var payload dto.UserRequest
+
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		details := common.ErrorValidation(err)
 		common.ErrorHandler(c, common.BadRequestError(details))
 		return
 	}
 
-	success, err := h.Service.Update(params.ID, User{
-		Fullname: payload.Fullname,
-		Email:    payload.Email,
-		Password: payload.Password,
-	})
+	id, err := h.Service.Update(params.ID, payload)
 
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(ToUpdateResponse(success)))
+	c.JSON(http.StatusOK, common.SuccessResponse(ToSuccessResponse(id)))
 }
 
 func (h *Handler) DeleteUser(c *gin.Context) {
@@ -101,10 +97,10 @@ func (h *Handler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	success, err := h.Service.Delete(params.ID)
+	_, err := h.Service.Delete(params.ID)
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(ToDeleteResponse(success)))
+	c.JSON(http.StatusOK, common.SuccessResponse(ToSuccessResponse(uuid.MustParse(params.ID))))
 }
