@@ -2,6 +2,7 @@ package api
 
 import (
 	"event-app/internal/config"
+	"event-app/internal/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -15,6 +16,10 @@ type Server struct {
 
 func NewServer(cfg *config.Config, db *gorm.DB) *Server {
 	router := gin.Default()
+	router.RedirectTrailingSlash = false
+	router.RedirectFixedPath = false
+
+	router.Use(middlewares.ErrorMiddleware())
 	server := &Server{
 		Router: router,
 		DB:     db,

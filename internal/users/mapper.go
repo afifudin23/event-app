@@ -16,13 +16,14 @@ func ToResponse(user User) dto.UserResponse {
 	}
 }
 
-func ToListResponse(users []User) dto.UserListResponse {
+func ToListResponse(currentID uuid.UUID, users []User) dto.UserListResponse {
 	var UserResponse []dto.UserResponse
 	for _, user := range users {
 		UserResponse = append(UserResponse, ToResponse(user))
 	}
 	return dto.UserListResponse{
-		Users: UserResponse,
+		CurrentID: currentID,
+		Users:     UserResponse,
 	}
 }
 
@@ -31,4 +32,3 @@ func ToSuccessResponse(id uuid.UUID) dto.SuccessResponse {
 		ID: id,
 	}
 }
-

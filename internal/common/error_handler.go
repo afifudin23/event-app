@@ -21,6 +21,7 @@ func ErrorHandler(c *gin.Context, err error) {
 				Details: appErr.Details,
 			},
 		))
+		c.Errors = nil
 		return
 	}
 

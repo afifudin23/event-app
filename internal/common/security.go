@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"time"
 
 	"github.com/alexedwards/argon2id"
@@ -24,7 +25,7 @@ func CheckPassword(password string, hashedPassword string) bool {
 	return true
 }
 
-func GenerateAccessToken(UserID string, secretKey string) *string {
+func GenerateToken(UserID string, secretKey string) *string {
 	claims := JWTClaims{
 		UserID: UserID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -35,4 +36,19 @@ func GenerateAccessToken(UserID string, secretKey string) *string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, _ := token.SignedString([]byte(secretKey))
 	return &tokenString
+}
+
+func VerifyToken(tokenString, secret string) (*JWTClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return nil, errors.New("Invalid or expired token")
+	}
+
+	if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, errors.New("Invalid token claims")
 }

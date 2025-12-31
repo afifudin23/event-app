@@ -10,7 +10,7 @@ import (
 type Config struct {
 	DatabaseURL string
 	Port        string
-	JWTSecret   string
+	SecretKey   string
 }
 
 func LoadEnv() *Config {
@@ -33,14 +33,14 @@ func LoadEnv() *Config {
 	}
 
 	// JWT_SECRET
-	jwtSecret, ok := os.LookupEnv("JWT_SECRET")
-	if !ok || jwtSecret == "" {
+	secretKey, ok := os.LookupEnv("SECRET_KEY")
+	if !ok || secretKey == "" {
 		log.Fatal("JWT_SECRET is not set")
 	}
 
 	return &Config{
 		DatabaseURL: dbURL,
 		Port:        port,
-		JWTSecret:   jwtSecret,
+		SecretKey:   secretKey,
 	}
 }

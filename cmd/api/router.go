@@ -11,6 +11,6 @@ func (s *Server) SetupRoutes() {
 	{
 		root.SetupRoutes(v1)
 		auth.SetupRoutes(v1, s.DB, s.Cfg)
-		users.SetupRoutes(v1, s.DB)
+		users.SetupRoutes(v1, s.DB, s.Cfg)
 	}
 }

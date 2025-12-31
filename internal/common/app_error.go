@@ -38,9 +38,14 @@ func NewAppError(statusCode int, code ErrorCode, message string, details any) *A
 	}
 }
 
+func UnauthorizedError(message string) *AppError {
+	return NewAppError(http.StatusUnauthorized, AUTH_REQUIRED, message, nil)
+}
+
 func BadRequestError(message string) *AppError {
 	return NewAppError(http.StatusBadRequest, BAD_REQUEST, message, nil)
 }
+
 func ValidationError(details any) *AppError {
 	return NewAppError(http.StatusUnprocessableEntity, VALIDATION_ERROR, "Invalid request body", details)
 }

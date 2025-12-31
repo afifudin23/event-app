@@ -31,7 +31,7 @@ func (s *service) Login(payload dto.UserLoginRequest) (*users.User, *string, err
 		return nil, nil, common.BadRequestError("Invalid password")
 	}
 
-	accessToken := common.GenerateAccessToken(user.ID.String(), s.Cfg.JWTSecret)
+	accessToken := common.GenerateToken(user.ID.String(), s.Cfg.SecretKey)
 
 	return user, accessToken, nil
 }
@@ -56,7 +56,7 @@ func (s *service) Register(payload dto.UserRegisterRequest) (*users.User, *strin
 		return nil, nil, err
 	}
 
-	accessToken := common.GenerateAccessToken(user.ID.String(), s.Cfg.JWTSecret)
+	accessToken := common.GenerateToken(user.ID.String(), s.Cfg.SecretKey)
 
 	return &user, accessToken, nil
 }
