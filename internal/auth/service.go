@@ -36,5 +36,27 @@ func (s *service) Login(payload dto.UserLoginRequest) (*users.User, *string, err
 	return user, accessToken, nil
 }
 func (s *service) Register(payload dto.UserRegisterRequest) (*users.User, *string, error) {
-	return nil, nil, nil
+	_, err := s.Repo.GetByEmail(payload.Email)
+	if err == nil {
+		return nil, nil, common.BadRequestError("Email already exists")
+	}
+
+	hashedPassword, err := common.HashPassword(payload.Password)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	user, err := s.Repo.Create(users.User{
+		Fullname: payload.Fullname,
+		Email:    payload.Email,
+		Password: hashedPassword,
+	})
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	accessToken := common.GenerateAccessToken(user.ID.String(), s.Cfg.JWTSecret)
+
+	return &user, accessToken, nil
 }

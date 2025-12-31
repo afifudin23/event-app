@@ -11,3 +11,9 @@ func ToLoginResponse(user users.User, accessToken string) dto.UserLoginResponse 
 		AccessToken: accessToken,
 	}
 }
+func ToRegisterResponse(user users.User, accessToken string) dto.UserRegisterResponse {
+	return dto.UserRegisterResponse{
+		User:        users.ToResponse(user),
+		AccessToken: accessToken,
+	}
+}

@@ -12,30 +12,19 @@ import (
 
 func CheckTypeError(typeError *json.UnmarshalTypeError, errorMap map[string]string) map[string]string {
 	field := strings.ToLower(typeError.Field)
-	kind := typeError.Type.Kind()
 
-	// Inisialisasi pesan default
-	defaultMessage := field + " has invalid type"
-
-	// Periksa kondisi menggunakan if terpisah
-	if kind == reflect.Float32 || kind == reflect.Float64 {
+	// Menggunakan switch lebih ringkas dan idiomatis Go
+	switch typeError.Type.Kind() {
+	case reflect.Float32, reflect.Float64:
 		errorMap[field] = field + " must be a number"
-	}
-
-	if kind == reflect.Int || kind == reflect.Int64 {
+	case reflect.Int, reflect.Int64:
 		errorMap[field] = field + " must be an integer"
-	}
-
-	if kind == reflect.String {
+	case reflect.String:
 		errorMap[field] = field + " must be a string"
-	}
-
-	if kind == reflect.Bool {
+	case reflect.Bool:
 		errorMap[field] = field + " must be a boolean"
-	}
-
-	if errorMap[field] == "" {
-		errorMap[field] = defaultMessage
+	default:
+		errorMap[field] = field + " has invalid type"
 	}
 
 	return errorMap
@@ -68,6 +57,10 @@ func ErrorValidation(err error) map[string]string {
 				errorsMap[field] = field + " is required"
 			case "min":
 				errorsMap[field] = field + " must be at least " + fieldErr.Param() + " characters"
+			case "max":
+				errorsMap[field] = field + " must be at most " + fieldErr.Param() + " characters"
+			case "eqfield":
+				errorsMap[field] = field + " does not match " + strings.ToLower(fieldErr.Param())
 			default:
 				errorsMap[field] = field + " is invalid"
 			}

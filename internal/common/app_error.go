@@ -1,19 +1,21 @@
 package common
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type ErrorCode string
 
 const (
-	BadRequest            ErrorCode = "BAD_REQUEST"
-	ValidationError       ErrorCode = "VALIDATION_ERROR"
-	AuthRequired          ErrorCode = "AUTH_REQUIRED"
-	AuthInvalidCredential ErrorCode = "AUTH_INVALID_CREDENTIALS"
-	NotFound              ErrorCode = "NOT_FOUND"
-	Forbidden             ErrorCode = "FORBIDDEN"
-	ServerError           ErrorCode = "SERVER_ERROR"
-	DatabaseError         ErrorCode = "DATABASE_ERROR"
-	TooManyRequests       ErrorCode = "TOO_MANY_REQUESTS"
+	BAD_REQUEST              ErrorCode = "BAD_REQUEST"
+	VALIDATION_ERROR         ErrorCode = "VALIDATION_ERROR"
+	AUTH_REQUIRED            ErrorCode = "AUTH_REQUIRED"
+	AUTH_INVALID_CREDENTIALS ErrorCode = "AUTH_INVALID_CREDENTIALS"
+	NOT_FOUND                ErrorCode = "NOT_FOUND"
+	FORBIDDEN                ErrorCode = "FORBIDDEN"
+	SERVER_ERROR             ErrorCode = "SERVER_ERROR"
+	DATABASE_ERROR           ErrorCode = "DATABASE_ERROR"
+	TOO_MANY_REQUESTS        ErrorCode = "TOO_MANY_REQUESTS"
 )
 
 type AppError struct {
@@ -36,14 +38,17 @@ func NewAppError(statusCode int, code ErrorCode, message string, details any) *A
 	}
 }
 
-func BadRequestError(details any) *AppError {
-	return NewAppError(http.StatusBadRequest, BadRequest, "Invalid request body", details)
+func BadRequestError(message string) *AppError {
+	return NewAppError(http.StatusBadRequest, BAD_REQUEST, message, nil)
+}
+func ValidationError(details any) *AppError {
+	return NewAppError(http.StatusUnprocessableEntity, VALIDATION_ERROR, "Invalid request body", details)
 }
 
 func NotFoundError(message string) *AppError {
-	return NewAppError(http.StatusNotFound, NotFound, message, nil)
+	return NewAppError(http.StatusNotFound, NOT_FOUND, message, nil)
 }
 
 func InternalServerError() *AppError {
-	return NewAppError(http.StatusInternalServerError, ServerError, "An unexpected error occurred", nil)
+	return NewAppError(http.StatusInternalServerError, SERVER_ERROR, "An unexpected error occurred", nil)
 }

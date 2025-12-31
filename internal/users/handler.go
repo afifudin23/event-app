@@ -34,7 +34,7 @@ func (h *Handler) GetUserByID(c *gin.Context) {
 	var params Params
 	if err := c.ShouldBindUri(&params); err != nil {
 		details := common.ErrorValidation(err)
-		common.ErrorHandler(c, common.BadRequestError(details))
+		common.ErrorHandler(c, common.ValidationError(details))
 		return
 	}
 
@@ -51,17 +51,17 @@ func (h *Handler) CreateUser(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		details := common.ErrorValidation(err)
-		common.ErrorHandler(c, common.BadRequestError(details))
+		common.ErrorHandler(c, common.ValidationError(details))
 		return
 	}
 
-	id, err := h.Service.Create(payload)
+	user, err := h.Service.Create(payload)
 
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, common.SuccessResponse(ToSuccessResponse(id)))
+	c.JSON(http.StatusCreated, common.SuccessResponse(ToSuccessResponse(user.ID)))
 }
 
 func (h *Handler) UpdateUser(c *gin.Context) {
@@ -70,30 +70,30 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 
 	if err := c.ShouldBindUri(&params); err != nil {
 		details := common.ErrorValidation(err)
-		common.ErrorHandler(c, common.BadRequestError(details))
+		common.ErrorHandler(c, common.ValidationError(details))
 		return
 	}
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		details := common.ErrorValidation(err)
-		common.ErrorHandler(c, common.BadRequestError(details))
+		common.ErrorHandler(c, common.ValidationError(details))
 		return
 	}
 
-	id, err := h.Service.Update(params.ID, payload)
+	user, err := h.Service.Update(params.ID, payload)
 
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(ToSuccessResponse(id)))
+	c.JSON(http.StatusOK, common.SuccessResponse(ToSuccessResponse(user.ID)))
 }
 
 func (h *Handler) DeleteUser(c *gin.Context) {
 	var params Params
 	if err := c.ShouldBindUri(&params); err != nil {
 		details := common.ErrorValidation(err)
-		common.ErrorHandler(c, common.BadRequestError(details))
+		common.ErrorHandler(c, common.ValidationError(details))
 		return
 	}
 
