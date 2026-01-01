@@ -10,12 +10,11 @@ import (
 
 func (s *Server) SetupRoutes() {
 	v1 := s.Router.Group("/api/v1")
-	userRepo := users.NewRepository(s.DB)
 	{
 		root.SetupRoutes(v1)
 		auth.SetupRoutes(v1, s.DB, s.Cfg)
 		users.SetupRoutes(v1, s.DB, s.Cfg)
-		events.SetupRoutes(v1, s.DB, s.Cfg, userRepo)
-		event_participants.SetupRoutes(v1, s.DB, s.Cfg, userRepo)
+		events.SetupRoutes(v1, s.DB, s.Cfg)
+		event_participants.SetupRoutes(v1, s.DB, s.Cfg)
 	}
 }

@@ -7,9 +7,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
-func AuthMiddleware(secretKey string, finder models.UserFinder) gin.HandlerFunc {
+func AuthMiddleware(db *gorm.DB, secretKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// CHECK AUTH HEADER
 		authHeader := c.GetHeader("Authorization")
@@ -31,7 +32,9 @@ func AuthMiddleware(secretKey string, finder models.UserFinder) gin.HandlerFunc 
 		}
 
 		// GET USER
-		_, err = finder.GetByID(uuid.MustParse(claims.UID), false, false)
+		uid := uuid.MustParse(claims.UID)
+		var user models.User
+		err = db.First(&user, "id = ?", uid).Error
 		if err != nil {
 			c.Error(common.UnauthorizedError("User not found"))
 			c.Abort()
@@ -39,7 +42,7 @@ func AuthMiddleware(secretKey string, finder models.UserFinder) gin.HandlerFunc 
 		}
 
 		// SET USER ID
-		c.Set("uid", claims.UID)
+		c.Set("uid", user.ID)
 		c.Next()
 	}
 }
