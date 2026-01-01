@@ -9,7 +9,7 @@ import (
 
 type Repository interface {
 	GetAll() ([]models.Event, error)
-	GetByID(id uuid.UUID) (models.Event, error)
+	GetByID(id uuid.UUID, loadCreatedBy bool, loadParticipants bool) (models.Event, error)
 	Create(event models.Event) (models.Event, error)
 	Update(event models.Event) (models.Event, error)
 	Delete(id uuid.UUID) (bool, error)
@@ -25,7 +25,7 @@ func NewRepository(db *gorm.DB) Repository {
 
 func (r *repository) GetAll() ([]models.Event, error) {
 	var events []models.Event
-	err := r.DB.Preload("User").Find(&events).Error
+	err := r.DB.Find(&events).Error
 	return events, err
 }
 
@@ -34,9 +34,17 @@ func (r *repository) Create(event models.Event) (models.Event, error) {
 	return event, err
 }
 
-func (r *repository) GetByID(id uuid.UUID) (models.Event, error) {
+func (r *repository) GetByID(id uuid.UUID, loadCreatedBy bool, loadParticipants bool) (models.Event, error) {
 	var event models.Event
-	err := r.DB.Preload("User").First(&event, "id = ?", id).Error
+	query := r.DB
+	if loadCreatedBy {
+		query = query.Preload("User")
+	}
+	if loadParticipants {
+		query = query.Preload("Participants.User")
+	}
+
+	err := query.First(&event, "id = ?", id).Error
 	if err != nil {
 		return models.Event{}, err
 	}

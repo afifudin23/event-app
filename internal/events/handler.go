@@ -46,7 +46,7 @@ func (h *Handler) GetEventByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToResponse(event)))
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToDetailResponse(event)))
 }
 
 func (h *Handler) CreateEvent(c *gin.Context) {

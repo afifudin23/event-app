@@ -30,7 +30,7 @@ func (s *service) FindAll() ([]models.User, error) {
 }
 
 func (s *service) FindByID(id uuid.UUID) (models.User, error) {
-	user, err := s.Repo.GetByID(id, true)
+	user, err := s.Repo.GetByID(id, true, true)
 	if err != nil {
 		return models.User{}, common.NotFoundError("User not found")
 	}
@@ -53,7 +53,7 @@ func (s *service) Create(payload dto.UserRequest) (models.User, error) {
 }
 
 func (s *service) Update(id uuid.UUID, payload dto.UserRequest) (models.User, error) {
-	user, err := s.Repo.GetByID(id, false)
+	user, err := s.Repo.GetByID(id, false, false)
 	if err != nil {
 		return models.User{}, common.NotFoundError("User not found")
 	}
@@ -76,7 +76,7 @@ func (s *service) Update(id uuid.UUID, payload dto.UserRequest) (models.User, er
 }
 
 func (s *service) Delete(id uuid.UUID) (bool, error) {
-	if _, err := s.Repo.GetByID(id, false); err != nil {
+	if _, err := s.Repo.GetByID(id, false, false); err != nil {
 		return false, common.NotFoundError("User not found")
 	}
 	return s.Repo.Delete(id)

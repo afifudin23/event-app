@@ -31,7 +31,7 @@ func AuthMiddleware(secretKey string, finder models.UserFinder) gin.HandlerFunc 
 		}
 
 		// GET USER
-		_, err = finder.FindByID(uuid.MustParse(claims.UID))
+		_, err = finder.GetByID(uuid.MustParse(claims.UID), false, false)
 		if err != nil {
 			c.Error(common.UnauthorizedError("User not found"))
 			c.Abort()

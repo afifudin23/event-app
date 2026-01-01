@@ -18,23 +18,24 @@ type EventInfo struct {
 }
 
 type UserResponse struct {
-	ID        uuid.UUID   `json:"id"`
-	Fullname  string      `json:"fullname"`
-	Email     string      `json:"email"`
-	CreatedAt time.Time   `json:"created_at"`
-	UpdatedAt time.Time   `json:"updated_at"`
-	Events    []EventInfo `json:"events"`
-}
-type UserListItemResponse struct {
 	ID        uuid.UUID `json:"id"`
 	Fullname  string    `json:"fullname"`
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+type UserDetailResponse struct {
+	ID             uuid.UUID   `json:"id"`
+	Fullname       string      `json:"fullname"`
+	Email          string      `json:"email"`
+	CreatedAt      time.Time   `json:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at"`
+	Events         []EventInfo `json:"events"`
+	Participations []EventInfo `json:"participations"`
+}
 
 type UserListResponse struct {
-	Users []UserListItemResponse `json:"users"`
+	Users []UserResponse `json:"users"`
 }
 
 type SuccessResponse struct {
@@ -61,14 +62,49 @@ func ToResponse(user models.User) UserResponse {
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
-		Events:    events,
+	}
+}
+func ToDetailResponse(user models.User) UserDetailResponse {
+	events := make([]EventInfo, 0, len(user.Events))
+	for _, e := range user.Events {
+		events = append(events, EventInfo{
+			ID:        e.ID,
+			Title:     e.Title,
+			Location:  e.Location,
+			StartDate: e.StartDate,
+			EndDate:   e.EndDate,
+			IsActive:  e.IsActive,
+			CreatedAt: e.CreatedAt,
+		})
+	}
+	participations := make([]EventInfo, 0, len(user.Participations))
+	for _, e := range user.Participations {
+		participations = append(participations, EventInfo{
+			ID:        e.Event.ID,
+			Title:     e.Event.Title,
+			Location:  e.Event.Location,
+			StartDate: e.Event.StartDate,
+			EndDate:   e.Event.EndDate,
+			IsActive:  e.Event.IsActive,
+			CreatedAt: e.Event.CreatedAt,
+		})
+	}
+
+	return UserDetailResponse{
+		ID:             user.ID,
+		Fullname:       user.Fullname,
+		Email:          user.Email,
+		CreatedAt:      user.CreatedAt,
+		UpdatedAt:      user.UpdatedAt,
+		Events:         events,
+		Participations: participations,
 	}
 }
 
 func ToListResponse(users []models.User) UserListResponse {
-	var responses []UserListItemResponse
+	var responses []UserResponse
 	for _, user := range users {
-		responses = append(responses, UserListItemResponse{
+		responses = append(responses, UserResponse{
 			ID:        user.ID,
 			Fullname:  user.Fullname,
 			Email:     user.Email,

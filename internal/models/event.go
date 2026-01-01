@@ -16,7 +16,10 @@ type Event struct {
 	EndDate     time.Time `gorm:"type:timestampz;not null"`
 	IsActive    bool      `gorm:"type:bool;not null;default:true"`
 	CreatedBy   uuid.UUID `gorm:"type:uuid;not null;references:users(id)"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	User        User `gorm:"foreignKey:CreatedBy"`
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+
+	User         User                `gorm:"foreignKey:CreatedBy"`
+	Participants []EventParticipants `gorm:"foreignKey:EventID"`
 }

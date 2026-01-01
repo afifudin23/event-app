@@ -44,7 +44,7 @@ func (s *service) FindAll() ([]models.Event, error) {
 }
 
 func (s *service) FindByID(id uuid.UUID) (models.Event, error) {
-	event, err := s.Repo.GetByID(id)
+	event, err := s.Repo.GetByID(id, true, true)
 	if err != nil {
 		return models.Event{}, common.NotFoundError("Event not found")
 	}
@@ -72,7 +72,7 @@ func (s *service) Create(uid uuid.UUID, payload dto.EventRequest) (models.Event,
 }
 
 func (s *service) Update(id uuid.UUID, payload dto.EventRequest) (models.Event, error) {
-	event, err := s.Repo.GetByID(id)
+	event, err := s.Repo.GetByID(id, false, false)
 	if err != nil {
 		return models.Event{}, common.NotFoundError("Event not found")
 	}
@@ -89,7 +89,7 @@ func (s *service) Update(id uuid.UUID, payload dto.EventRequest) (models.Event, 
 }
 
 func (s *service) Delete(id uuid.UUID) (bool, error) {
-	if _, err := s.Repo.GetByID(id); err != nil {
+	if _, err := s.Repo.GetByID(id, false, false); err != nil {
 		return false, common.NotFoundError("Event not found")
 	}
 	return s.Repo.Delete(id)

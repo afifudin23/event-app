@@ -24,14 +24,43 @@ type EventResponse struct {
 	IsActive    bool      `json:"is_active"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
-	CreatedBy   UserInfo  `json:"created_by"`
 }
+
+type EventDetailResponse struct {
+	ID           uuid.UUID  `json:"id"`
+	Title        string     `json:"title"`
+	Description  string     `json:"description"`
+	Location     string     `json:"location"`
+	Capacity     int        `json:"capacity"`
+	StartDate    time.Time  `json:"start_date"`
+	EndDate      time.Time  `json:"end_date"`
+	IsActive     bool       `json:"is_active"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
+	Creator      UserInfo   `json:"creator"`
+	Participants []UserInfo `json:"participants"`
+}
+
+type EventListResponse struct {
+	Events []EventResponse `json:"events"`
+}
+
 type SuccessResponse struct {
 	ID uuid.UUID `json:"id"`
 }
 
-func ToResponse(event models.Event) EventResponse {
-	return EventResponse{
+func ToDetailResponse(event models.Event) EventDetailResponse {
+	participants := make([]UserInfo, 0, len(event.Participants))
+
+	for _, p := range event.Participants {
+		participants = append(participants, UserInfo{
+			ID:       p.User.ID,
+			Fullname: p.User.Fullname,
+			Email:    p.User.Email,
+		})
+	}
+
+	return EventDetailResponse{
 		ID:          event.ID,
 		Title:       event.Title,
 		Description: event.Description,
@@ -42,16 +71,17 @@ func ToResponse(event models.Event) EventResponse {
 		IsActive:    event.IsActive,
 		CreatedAt:   event.CreatedAt,
 		UpdatedAt:   event.UpdatedAt,
-		CreatedBy: UserInfo{
+		Creator: UserInfo{
 			ID:       event.User.ID,
 			Fullname: event.User.Fullname,
 			Email:    event.User.Email,
 		},
+		Participants: participants,
 	}
 }
 
-func ToListResponse(events []models.Event) []EventResponse {
-	var responses []EventResponse
+func ToListResponse(events []models.Event) EventListResponse {
+	responses := make([]EventResponse, 0, len(events))
 	for _, event := range events {
 		responses = append(responses, EventResponse{
 			ID:          event.ID,
@@ -66,7 +96,9 @@ func ToListResponse(events []models.Event) []EventResponse {
 			UpdatedAt:   event.UpdatedAt,
 		})
 	}
-	return responses
+	return EventListResponse{
+		Events: responses,
+	}
 }
 
 func ToSuccessResponse(id uuid.UUID) SuccessResponse {

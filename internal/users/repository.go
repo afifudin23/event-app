@@ -9,7 +9,7 @@ import (
 
 type Repository interface {
 	GetAll() ([]models.User, error)
-	GetByID(id uuid.UUID, loadEvents bool) (models.User, error)
+	GetByID(id uuid.UUID, loadEvents bool, loadParticipations bool) (models.User, error)
 	GetByEmail(email string) (models.User, error)
 	Create(user models.User) (models.User, error)
 	Update(user models.User) (models.User, error)
@@ -35,12 +35,18 @@ func (r *repository) Create(user models.User) (models.User, error) {
 	return user, err
 }
 
-func (r *repository) GetByID(id uuid.UUID, loadEvents bool) (models.User, error) {
+func (r *repository) GetByID(id uuid.UUID, loadEvents bool, loadParticipations bool) (models.User, error) {
 	var user models.User
 	query := r.DB
+
 	if loadEvents {
 		query = query.Preload("Events")
 	}
+
+	if loadParticipations {
+		query = query.Preload("Participations.Event")
+	}
+
 	err := query.First(&user, "id = ?", id).Error
 	if err != nil {
 		return models.User{}, err

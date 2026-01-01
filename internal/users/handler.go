@@ -44,7 +44,7 @@ func (h *Handler) GetUserByID(c *gin.Context) {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToResponse(user)))
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToDetailResponse(user)))
 }
 
 func (h *Handler) CreateUser(c *gin.Context) {

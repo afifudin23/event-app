@@ -14,7 +14,7 @@ func SetupRoutes(r *gin.RouterGroup, db *gorm.DB, cfg *config.Config) {
 	handler := NewHandler(service)
 
 	users := r.Group("/users")
-	users.Use(middlewares.AuthMiddleware(cfg.SecretKey, service))
+	users.Use(middlewares.AuthMiddleware(cfg.SecretKey, repo))
 	{
 		users.GET("", handler.GetAllUsers)
 		users.POST("", handler.CreateUser)
