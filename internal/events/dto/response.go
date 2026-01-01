@@ -24,7 +24,7 @@ type EventResponse struct {
 	IsActive    bool      `json:"is_active"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
-	CreatedBy   *UserInfo `json:"created_by,omitempty"`
+	CreatedBy   UserInfo  `json:"created_by"`
 }
 type SuccessResponse struct {
 	ID uuid.UUID `json:"id"`
@@ -42,7 +42,7 @@ func ToResponse(event models.Event) EventResponse {
 		IsActive:    event.IsActive,
 		CreatedAt:   event.CreatedAt,
 		UpdatedAt:   event.UpdatedAt,
-		CreatedBy: &UserInfo{
+		CreatedBy: UserInfo{
 			ID:       event.User.ID,
 			Fullname: event.User.Fullname,
 			Email:    event.User.Email,
@@ -64,7 +64,6 @@ func ToListResponse(events []models.Event) []EventResponse {
 			IsActive:    event.IsActive,
 			CreatedAt:   event.CreatedAt,
 			UpdatedAt:   event.UpdatedAt,
-			CreatedBy:   nil,
 		})
 	}
 	return responses

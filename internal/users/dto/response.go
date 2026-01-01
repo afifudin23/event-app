@@ -7,7 +7,25 @@ import (
 	"github.com/google/uuid"
 )
 
+type EventInfo struct {
+	ID        uuid.UUID `json:"id"`
+	Title     string    `json:"title"`
+	Location  string    `json:"location"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+	IsActive  bool      `json:"is_active"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type UserResponse struct {
+	ID        uuid.UUID   `json:"id"`
+	Fullname  string      `json:"fullname"`
+	Email     string      `json:"email"`
+	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at"`
+	Events    []EventInfo `json:"events"`
+}
+type UserListItemResponse struct {
 	ID        uuid.UUID `json:"id"`
 	Fullname  string    `json:"fullname"`
 	Email     string    `json:"email"`
@@ -16,7 +34,7 @@ type UserResponse struct {
 }
 
 type UserListResponse struct {
-	Users []UserResponse `json:"users"`
+	Users []UserListItemResponse `json:"users"`
 }
 
 type SuccessResponse struct {
@@ -24,22 +42,42 @@ type SuccessResponse struct {
 }
 
 func ToResponse(user models.User) UserResponse {
+	events := make([]EventInfo, 0, len(user.Events))
+	for _, e := range user.Events {
+		events = append(events, EventInfo{
+			ID:        e.ID,
+			Title:     e.Title,
+			Location:  e.Location,
+			StartDate: e.StartDate,
+			EndDate:   e.EndDate,
+			IsActive:  e.IsActive,
+			CreatedAt: e.CreatedAt,
+		})
+	}
+
 	return UserResponse{
 		ID:        user.ID,
 		Fullname:  user.Fullname,
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
+		Events:    events,
 	}
 }
 
 func ToListResponse(users []models.User) UserListResponse {
-	var UserResponse []UserResponse
+	var responses []UserListItemResponse
 	for _, user := range users {
-		UserResponse = append(UserResponse, ToResponse(user))
+		responses = append(responses, UserListItemResponse{
+			ID:        user.ID,
+			Fullname:  user.Fullname,
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		})
 	}
 	return UserListResponse{
-		Users: UserResponse,
+		Users: responses,
 	}
 }
 

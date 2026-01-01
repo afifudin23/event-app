@@ -7,21 +7,24 @@ import (
 	"log"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
 
 func CheckTypeError(typeError *json.UnmarshalTypeError, errorMap map[string]string) map[string]string {
 	field := strings.ToLower(typeError.Field)
+	if field == "" {
+		field = "request"
+	}
 
-	// Menggunakan switch lebih ringkas dan idiomatis Go
 	switch typeError.Type.Kind() {
-	case reflect.Float32, reflect.Float64:
-		errorMap[field] = field + " must be a number"
-	case reflect.Int, reflect.Int64:
-		errorMap[field] = field + " must be an integer"
 	case reflect.String:
 		errorMap[field] = field + " must be a string"
+	case reflect.Int, reflect.Int64:
+		errorMap[field] = field + " must be an integer"
+	case reflect.Float32, reflect.Float64:
+		errorMap[field] = field + " must be a number"
 	case reflect.Bool:
 		errorMap[field] = field + " must be a boolean"
 	default:
@@ -44,6 +47,12 @@ func ErrorValidation(err error) map[string]string {
 	var typeErr *json.UnmarshalTypeError
 	if errors.As(err, &typeErr) {
 		return CheckTypeError(typeErr, errorsMap)
+	}
+
+	var parseErr *time.ParseError
+	if errors.As(err, &parseErr) {
+		errorsMap["datetime"] = "Invalid datetime format, must be 'YYYY-MM-DDTHH:MM:SS±HH:MM'"
+		return errorsMap
 	}
 
 	// Validation errors (binding tag)
@@ -69,7 +78,7 @@ func ErrorValidation(err error) map[string]string {
 		return errorsMap
 	}
 
-	// Fallback
+	// FALLBACK
 	log.Println(err)
 	errorsMap["request"] = "Invalid request payload"
 	return errorsMap

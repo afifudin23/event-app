@@ -13,6 +13,7 @@ type User struct {
 	Password  string    `gorm:"type:text;not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Events    []Event `gorm:"foreignKey:CreatedBy"`
 }
 
 type UserFinder interface {

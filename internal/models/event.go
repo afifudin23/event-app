@@ -14,9 +14,9 @@ type Event struct {
 	Capacity    int       `gorm:"type:integer;not null"`
 	StartDate   time.Time `gorm:"type:timestampz;not null"`
 	EndDate     time.Time `gorm:"type:timestampz;not null"`
-	IsActive    bool      `gorm:"type:bool;not null"`
+	IsActive    bool      `gorm:"type:bool;not null;default:true"`
 	CreatedBy   uuid.UUID `gorm:"type:uuid;not null;references:users(id)"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	User        User `gorm:"foreignKey:CreatedBy;references:ID"`
+	User        User `gorm:"foreignKey:CreatedBy"`
 }
