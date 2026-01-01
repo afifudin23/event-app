@@ -3,16 +3,17 @@ package users
 import (
 	"event-app/internal/models"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Repository interface {
 	GetAll() ([]models.User, error)
-	GetByID(id string) (*models.User, error)
-	GetByEmail(id string) (*models.User, error)
+	GetByID(id uuid.UUID) (models.User, error)
+	GetByEmail(email string) (models.User, error)
 	Create(user models.User) (models.User, error)
 	Update(user models.User) (models.User, error)
-	Delete(id string) (bool, error)
+	Delete(id uuid.UUID) (bool, error)
 }
 
 type repository struct {
@@ -34,22 +35,22 @@ func (r *repository) Create(user models.User) (models.User, error) {
 	return user, err
 }
 
-func (r *repository) GetByID(id string) (*models.User, error) {
+func (r *repository) GetByID(id uuid.UUID) (models.User, error) {
 	var user models.User
 	err := r.DB.First(&user, "id = ?", id).Error
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
-	return &user, err
+	return user, err
 }
 
-func (r *repository) GetByEmail(email string) (*models.User, error) {
+func (r *repository) GetByEmail(email string) (models.User, error) {
 	var user models.User
 	err := r.DB.First(&user, "email = ?", email).Error
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
-	return &user, err
+	return user, err
 }
 
 func (r *repository) Update(user models.User) (models.User, error) {
@@ -57,7 +58,7 @@ func (r *repository) Update(user models.User) (models.User, error) {
 	return user, err
 }
 
-func (r *repository) Delete(id string) (bool, error) {
+func (r *repository) Delete(id uuid.UUID) (bool, error) {
 	err := r.DB.Delete(&models.User{}, "id = ?", id).Error
 	return err == nil, err
 }

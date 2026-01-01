@@ -28,7 +28,7 @@ func (h *Handler) GetAllUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, common.SuccessResponse(ToListResponse(users)))
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToListResponse(users)))
 }
 
 func (h *Handler) GetUserByID(c *gin.Context) {
@@ -39,12 +39,12 @@ func (h *Handler) GetUserByID(c *gin.Context) {
 		return
 	}
 
-	user, err := h.Service.FindByID(params.ID)
+	user, err := h.Service.FindByID(uuid.MustParse(params.ID))
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(ToResponse(*user)))
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToResponse(user)))
 }
 
 func (h *Handler) CreateUser(c *gin.Context) {
@@ -62,7 +62,7 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, common.SuccessResponse(ToSuccessResponse(user.ID)))
+	c.JSON(http.StatusCreated, common.SuccessResponse(dto.ToSuccessResponse(user.ID)))
 }
 
 func (h *Handler) UpdateUser(c *gin.Context) {
@@ -81,13 +81,13 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.Service.Update(params.ID, payload)
+	user, err := h.Service.Update(uuid.MustParse(params.ID), payload)
 
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(ToSuccessResponse(user.ID)))
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToSuccessResponse(user.ID)))
 }
 
 func (h *Handler) DeleteUser(c *gin.Context) {
@@ -98,10 +98,10 @@ func (h *Handler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	_, err := h.Service.Delete(params.ID)
+	_, err := h.Service.Delete(uuid.MustParse(params.ID))
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(ToSuccessResponse(uuid.MustParse(params.ID))))
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToSuccessResponse(uuid.MustParse(params.ID))))
 }

@@ -2,7 +2,6 @@ package common
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,6 +25,6 @@ func ErrorHandler(c *gin.Context, err error) {
 	}
 
 	// SERVER ERRORS
-	log.Print(err)
-	c.JSON(http.StatusInternalServerError, InternalServerError())
+	log.Println(err.Error())
+	c.Error(InternalServerError())
 }

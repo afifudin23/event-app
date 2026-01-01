@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"reflect"
 	"strings"
 
@@ -69,6 +70,7 @@ func ErrorValidation(err error) map[string]string {
 	}
 
 	// Fallback
+	log.Println(err)
 	errorsMap["request"] = "Invalid request payload"
 	return errorsMap
 }

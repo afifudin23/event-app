@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -53,6 +54,21 @@ func main() {
 			log.Fatalf("Failed to rollback migration: %v", err)
 		}
 		log.Println("migration down success")
+	case "force":
+		if len(os.Args) < 3 {
+			log.Fatal("Please provide a migration version to force.")
+		}
+
+		versionStr := os.Args[2]
+		version, err := strconv.ParseInt(versionStr, 10, 64)
+		if err != nil {
+			log.Fatalf("Invalid migration version: %v", err)
+		}
+
+		if err := m.Force(int(version)); err != nil {
+			log.Fatalf("Failed to force migration %s: %v", versionStr, err)
+		}
+		log.Printf("Migration %s forced successfully", versionStr)
 	default:
 		log.Fatal("Invalid direction. Please use 'up' or 'down'.")
 	}

@@ -6,6 +6,7 @@ import (
 	"event-app/pkg/security"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func AuthMiddleware(secretKey string, finder models.UserFinder) gin.HandlerFunc {
@@ -30,7 +31,7 @@ func AuthMiddleware(secretKey string, finder models.UserFinder) gin.HandlerFunc 
 		}
 
 		// GET USER
-		_, err = finder.FindByID(claims.UID)
+		_, err = finder.FindByID(uuid.MustParse(claims.UID))
 		if err != nil {
 			c.Error(common.UnauthorizedError("User not found"))
 			c.Abort()

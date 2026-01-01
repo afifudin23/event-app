@@ -12,7 +12,7 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(UserID string, secretKey string) *string {
+func GenerateToken(UserID string, secretKey string) string {
 	claims := JWTClaims{
 		UID: UserID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -22,7 +22,7 @@ func GenerateToken(UserID string, secretKey string) *string {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, _ := token.SignedString([]byte(secretKey))
-	return &tokenString
+	return tokenString
 }
 
 func VerifyToken(tokenString, secret string) (*JWTClaims, error) {

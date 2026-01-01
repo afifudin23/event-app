@@ -30,7 +30,7 @@ func (h *Handler) Login(c *gin.Context) {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(ToLoginResponse(*user, *accessToken)))
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToLoginResponse(user, accessToken)))
 }
 
 func (h *Handler) Register(c *gin.Context) {
@@ -45,5 +45,5 @@ func (h *Handler) Register(c *gin.Context) {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(ToLoginResponse(*user, *accessToken)))
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToLoginResponse(user, accessToken)))
 }

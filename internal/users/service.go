@@ -5,14 +5,16 @@ import (
 	"event-app/internal/models"
 	"event-app/internal/users/dto"
 	"event-app/pkg/security"
+
+	"github.com/google/uuid"
 )
 
 type Service interface {
 	FindAll() ([]models.User, error)
-	FindByID(id string) (*models.User, error)
+	FindByID(id uuid.UUID) (models.User, error)
 	Create(payload dto.UserRequest) (models.User, error)
-	Update(id string, payload dto.UserRequest) (models.User, error)
-	Delete(id string) (bool, error)
+	Update(id uuid.UUID, payload dto.UserRequest) (models.User, error)
+	Delete(id uuid.UUID) (bool, error)
 }
 
 type service struct {
@@ -27,10 +29,10 @@ func (s *service) FindAll() ([]models.User, error) {
 	return s.Repo.GetAll()
 }
 
-func (s *service) FindByID(id string) (*models.User, error) {
+func (s *service) FindByID(id uuid.UUID) (models.User, error) {
 	user, err := s.Repo.GetByID(id)
 	if err != nil {
-		return nil, common.NotFoundError("models.User not found")
+		return models.User{}, common.NotFoundError("User not found")
 	}
 	return user, err
 }
@@ -50,10 +52,10 @@ func (s *service) Create(payload dto.UserRequest) (models.User, error) {
 	})
 }
 
-func (s *service) Update(id string, payload dto.UserRequest) (models.User, error) {
+func (s *service) Update(id uuid.UUID, payload dto.UserRequest) (models.User, error) {
 	user, err := s.Repo.GetByID(id)
 	if err != nil {
-		return models.User{}, common.NotFoundError("models.User not found")
+		return models.User{}, common.NotFoundError("User not found")
 	}
 
 	// CHECK DUPLICATE EMAIL
@@ -70,12 +72,12 @@ func (s *service) Update(id string, payload dto.UserRequest) (models.User, error
 	user.Fullname = payload.Fullname
 	user.Email = payload.Email
 	user.Password = passwordHashed
-	return s.Repo.Update(*user)
+	return s.Repo.Update(user)
 }
 
-func (s *service) Delete(id string) (bool, error) {
+func (s *service) Delete(id uuid.UUID) (bool, error) {
 	if _, err := s.Repo.GetByID(id); err != nil {
-		return false, common.NotFoundError("models.User not found")
+		return false, common.NotFoundError("User not found")
 	}
 	return s.Repo.Delete(id)
 }

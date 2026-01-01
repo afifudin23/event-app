@@ -10,8 +10,8 @@ import (
 )
 
 type Service interface {
-	Login(payload dto.UserLoginRequest) (*models.User, *string, error)
-	Register(payload dto.UserRegisterRequest) (*models.User, *string, error)
+	Login(payload dto.UserLoginRequest) (models.User, string, error)
+	Register(payload dto.UserRegisterRequest) (models.User, string, error)
 }
 
 type service struct {
@@ -23,29 +23,29 @@ func NewService(repo users.Repository, cfg *config.Config) Service {
 	return &service{Repo: repo, Cfg: cfg}
 }
 
-func (s *service) Login(payload dto.UserLoginRequest) (*models.User, *string, error) {
+func (s *service) Login(payload dto.UserLoginRequest) (models.User, string, error) {
 	user, err := s.Repo.GetByEmail(payload.Email)
 	if err != nil {
-		return nil, nil, common.BadRequestError("User not found")
+		return models.User{}, "", common.BadRequestError("User not found")
 	}
 
 	if !security.CheckPassword(payload.Password, user.Password) {
-		return nil, nil, common.BadRequestError("Invalid password")
+		return models.User{}, "", common.BadRequestError("Invalid password")
 	}
 
 	accessToken := security.GenerateToken(user.ID.String(), s.Cfg.SecretKey)
 
 	return user, accessToken, nil
 }
-func (s *service) Register(payload dto.UserRegisterRequest) (*models.User, *string, error) {
+func (s *service) Register(payload dto.UserRegisterRequest) (models.User, string, error) {
 	_, err := s.Repo.GetByEmail(payload.Email)
 	if err == nil {
-		return nil, nil, common.BadRequestError("Email already exists")
+		return models.User{}, "", common.BadRequestError("Email already exists")
 	}
 
 	hashedPassword, err := security.HashPassword(payload.Password)
 	if err != nil {
-		return nil, nil, err
+		return models.User{}, "", err
 	}
 
 	user, err := s.Repo.Create(models.User{
@@ -55,10 +55,10 @@ func (s *service) Register(payload dto.UserRegisterRequest) (*models.User, *stri
 	})
 
 	if err != nil {
-		return nil, nil, err
+		return models.User{}, "", err
 	}
 
 	accessToken := security.GenerateToken(user.ID.String(), s.Cfg.SecretKey)
 
-	return &user, accessToken, nil
+	return user, accessToken, nil
 }

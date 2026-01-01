@@ -11,10 +11,10 @@ type User struct {
 	Fullname  string    `gorm:"type:varchar(255);not null"`
 	Email     string    `gorm:"type:varchar(255);not null;unique"`
 	Password  string    `gorm:"type:text;not null"`
-	CreatedAt time.Time `gorm:"default:now()"`
-	UpdatedAt time.Time `gorm:"default:now()"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type UserFinder interface {
-	FindByID(id string) (*User, error)
+	FindByID(id uuid.UUID) (User, error)
 }
