@@ -1,12 +1,13 @@
 package users
 
 import (
+	"event-app/internal/models"
 	"event-app/internal/users/dto"
 
 	"github.com/google/uuid"
 )
 
-func ToResponse(user User) dto.UserResponse {
+func ToResponse(user models.User) dto.UserResponse {
 	return dto.UserResponse{
 		ID:        user.ID,
 		Fullname:  user.Fullname,
@@ -16,13 +17,12 @@ func ToResponse(user User) dto.UserResponse {
 	}
 }
 
-func ToListResponse(currentID uuid.UUID, users []User) dto.UserListResponse {
+func ToListResponse(users []models.User) dto.UserListResponse {
 	var UserResponse []dto.UserResponse
 	for _, user := range users {
 		UserResponse = append(UserResponse, ToResponse(user))
 	}
 	return dto.UserListResponse{
-		CurrentID: currentID,
 		Users:     UserResponse,
 	}
 }

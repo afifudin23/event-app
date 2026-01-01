@@ -1,33 +1,20 @@
-package common
+package security
 
 import (
 	"errors"
 	"time"
 
-	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type JWTClaims struct {
-	UserID string `json:"user_id"`
+	UID string `json:"uid"`
 	jwt.RegisteredClaims
-}
-
-func HashPassword(password string) (string, error) {
-	hashedPassword, err := argon2id.CreateHash(password, argon2id.DefaultParams)
-	return hashedPassword, err
-}
-
-func CheckPassword(password string, hashedPassword string) bool {
-	if _, err := argon2id.ComparePasswordAndHash(password, hashedPassword); err != nil {
-		return false
-	}
-	return true
 }
 
 func GenerateToken(UserID string, secretKey string) *string {
 	claims := JWTClaims{
-		UserID: UserID,
+		UID: UserID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

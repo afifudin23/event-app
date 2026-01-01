@@ -2,11 +2,13 @@ package middlewares
 
 import (
 	"event-app/internal/common"
+	"event-app/internal/models"
+	"event-app/pkg/security"
 
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware(secretKey string) gin.HandlerFunc {
+func AuthMiddleware(secretKey string, finder models.UserFinder) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// CHECK AUTH HEADER
 		authHeader := c.GetHeader("Authorization")
@@ -20,14 +22,23 @@ func AuthMiddleware(secretKey string) gin.HandlerFunc {
 		token := authHeader[len("Bearer "):]
 
 		// VERIFY TOKEN
-		claims, err := common.VerifyToken(token, secretKey)
+		claims, err := security.VerifyToken(token, secretKey)
 		if err != nil {
 			c.Error(common.UnauthorizedError(err.Error()))
 			c.Abort()
 			return
 		}
 
-		c.Set("user_id", claims.UserID)
+		// GET USER
+		_, err = finder.FindByID(claims.UID)
+		if err != nil {
+			c.Error(common.UnauthorizedError("User not found"))
+			c.Abort()
+			return
+		}
+
+		// SET USER ID
+		c.Set("uid", claims.UID)
 		c.Next()
 	}
 }

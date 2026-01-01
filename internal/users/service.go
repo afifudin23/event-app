@@ -2,14 +2,16 @@ package users
 
 import (
 	"event-app/internal/common"
+	"event-app/internal/models"
 	"event-app/internal/users/dto"
+	"event-app/pkg/security"
 )
 
 type Service interface {
-	FindAll() ([]User, error)
-	FindByID(id string) (*User, error)
-	Create(payload dto.UserRequest) (User, error)
-	Update(id string, payload dto.UserRequest) (User, error)
+	FindAll() ([]models.User, error)
+	FindByID(id string) (*models.User, error)
+	Create(payload dto.UserRequest) (models.User, error)
+	Update(id string, payload dto.UserRequest) (models.User, error)
 	Delete(id string) (bool, error)
 }
 
@@ -21,59 +23,59 @@ func NewService(repo Repository) Service {
 	return &service{Repo: repo}
 }
 
-func (s *service) FindAll() ([]User, error) {
+func (s *service) FindAll() ([]models.User, error) {
 	return s.Repo.GetAll()
 }
 
-func (s *service) FindByID(id string) (*User, error) {
+func (s *service) FindByID(id string) (*models.User, error) {
 	user, err := s.Repo.GetByID(id)
 	if err != nil {
-		return nil, common.NotFoundError("User not found")
+		return nil, common.NotFoundError("models.User not found")
 	}
 	return user, err
 }
 
-func (s *service) Create(payload dto.UserRequest) (User, error) {
+func (s *service) Create(payload dto.UserRequest) (models.User, error) {
 	if _, err := s.Repo.GetByEmail(payload.Email); err == nil {
-		return User{}, common.BadRequestError("Email already exists")
+		return models.User{}, common.BadRequestError("Email already exists")
 	}
-	hashedPassword, err := common.HashPassword(payload.Password)
+	passwordHashed, err := security.HashPassword(payload.Password)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
-	return s.Repo.Create(User{
+	return s.Repo.Create(models.User{
 		Fullname: payload.Fullname,
 		Email:    payload.Email,
-		Password: hashedPassword,
+		Password: passwordHashed,
 	})
 }
 
-func (s *service) Update(id string, payload dto.UserRequest) (User, error) {
+func (s *service) Update(id string, payload dto.UserRequest) (models.User, error) {
 	user, err := s.Repo.GetByID(id)
 	if err != nil {
-		return User{}, common.NotFoundError("User not found")
+		return models.User{}, common.NotFoundError("models.User not found")
 	}
 
 	// CHECK DUPLICATE EMAIL
 	existingEmail, err := s.Repo.GetByEmail(payload.Email)
 	if err == nil && existingEmail.ID != user.ID {
-		return User{}, common.BadRequestError("Email already exists")
+		return models.User{}, common.BadRequestError("Email already exists")
 	}
 
 	// UPDATE
-	hashedPassword, err := common.HashPassword(payload.Password)
+	passwordHashed, err := security.HashPassword(payload.Password)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 	user.Fullname = payload.Fullname
 	user.Email = payload.Email
-	user.Password = hashedPassword
+	user.Password = passwordHashed
 	return s.Repo.Update(*user)
 }
 
 func (s *service) Delete(id string) (bool, error) {
 	if _, err := s.Repo.GetByID(id); err != nil {
-		return false, common.NotFoundError("User not found")
+		return false, common.NotFoundError("models.User not found")
 	}
 	return s.Repo.Delete(id)
 }

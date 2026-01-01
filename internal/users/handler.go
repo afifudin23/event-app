@@ -27,13 +27,8 @@ func (h *Handler) GetAllUsers(c *gin.Context) {
 		common.ErrorHandler(c, err)
 		return
 	}
-	uid, exists := c.Get("user_id")
-	if !exists {
-		c.Error(common.UnauthorizedError("User not authenticated"))
-		return
-	}
-	userID := uuid.MustParse(uid.(string))
-	c.JSON(http.StatusOK, common.SuccessResponse(ToListResponse(userID, users)))
+
+	c.JSON(http.StatusOK, common.SuccessResponse(ToListResponse(users)))
 }
 
 func (h *Handler) GetUserByID(c *gin.Context) {

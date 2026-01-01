@@ -1,4 +1,4 @@
-package users
+package models
 
 import (
 	"time"
@@ -13,4 +13,8 @@ type User struct {
 	Password  string    `gorm:"type:text;not null"`
 	CreatedAt time.Time `gorm:"default:now()"`
 	UpdatedAt time.Time `gorm:"default:now()"`
+}
+
+type UserFinder interface {
+	FindByID(id string) (*User, error)
 }

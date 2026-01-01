@@ -15,7 +15,6 @@ type UserResponse struct {
 }
 
 type UserListResponse struct {
-	CurrentID uuid.UUID      `json:"current_id"`
 	Users     []UserResponse `json:"users"`
 }
 
