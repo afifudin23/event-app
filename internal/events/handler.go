@@ -3,7 +3,6 @@ package events
 import (
 	"event-app/internal/common"
 	"event-app/internal/events/dto"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -57,18 +56,12 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 		common.ErrorHandler(c, common.ValidationError(details))
 		return
 	}
-	uidStr := c.MustGet("uid").(string)
-	uid, err := uuid.Parse(uidStr)
-	if err != nil {
-		common.ErrorHandler(c, common.UnauthorizedError("invalid user id"))
-		return
-	}
+	uid := c.MustGet("uid").(uuid.UUID)
 	event, err := h.Service.Create(uid, payload)
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	log.Println(12343333)
 	c.JSON(http.StatusCreated, common.SuccessResponse(dto.ToSuccessResponse(event.ID)))
 }
 

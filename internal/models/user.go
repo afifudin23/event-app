@@ -2,15 +2,14 @@ package models
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type User struct {
-	ID       uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	Fullname string    `gorm:"type:varchar(255);not null"`
-	Email    string    `gorm:"type:varchar(255);not null;unique"`
-	Password string    `gorm:"type:text;not null"`
+	ID       string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	Fullname string `gorm:"type:varchar(255);not null"`
+	Email    string `gorm:"type:varchar(255);not null;unique"`
+	Password string `gorm:"type:text;not null"`
+	Roles    []Role `gorm:"many2many:user_roles"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -19,6 +18,7 @@ type User struct {
 	Participations []EventParticipants `gorm:"foreignKey:UserID"`
 }
 
-type UserFinder interface {
-	GetByID(id uuid.UUID, loadEvents bool, loadParticipations bool) (User, error)
+type UserRole struct {
+	UserID string `gorm:"type:uuid;not null;references:users(id)"`
+	RoleID string `gorm:"type:uuid;not null;references:roles(id)"`
 }

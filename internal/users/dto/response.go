@@ -3,12 +3,10 @@ package dto
 import (
 	"event-app/internal/models"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type EventInfo struct {
-	ID        uuid.UUID `json:"id"`
+	ID        string    `json:"id"`
 	Title     string    `json:"title"`
 	Location  string    `json:"location"`
 	StartDate time.Time `json:"start_date"`
@@ -18,14 +16,15 @@ type EventInfo struct {
 }
 
 type UserResponse struct {
-	ID        uuid.UUID `json:"id"`
+	ID        string    `json:"id"`
 	Fullname  string    `json:"fullname"`
 	Email     string    `json:"email"`
+	Roles     []string  `json:"roles"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 type UserDetailResponse struct {
-	ID             uuid.UUID   `json:"id"`
+	ID             string      `json:"id"`
 	Fullname       string      `json:"fullname"`
 	Email          string      `json:"email"`
 	CreatedAt      time.Time   `json:"created_at"`
@@ -39,27 +38,20 @@ type UserListResponse struct {
 }
 
 type SuccessResponse struct {
-	ID uuid.UUID `json:"id"`
+	ID string `json:"id"`
 }
 
 func ToResponse(user models.User) UserResponse {
-	events := make([]EventInfo, 0, len(user.Events))
-	for _, e := range user.Events {
-		events = append(events, EventInfo{
-			ID:        e.ID,
-			Title:     e.Title,
-			Location:  e.Location,
-			StartDate: e.StartDate,
-			EndDate:   e.EndDate,
-			IsActive:  e.IsActive,
-			CreatedAt: e.CreatedAt,
-		})
+	roles := make([]string, 0, len(user.Roles))
+	for _, r := range user.Roles {
+		roles = append(roles, r.Name)
 	}
 
 	return UserResponse{
 		ID:        user.ID,
 		Fullname:  user.Fullname,
 		Email:     user.Email,
+		Roles:     roles,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
@@ -68,7 +60,7 @@ func ToDetailResponse(user models.User) UserDetailResponse {
 	events := make([]EventInfo, 0, len(user.Events))
 	for _, e := range user.Events {
 		events = append(events, EventInfo{
-			ID:        e.ID,
+			ID:        e.ID.String(),
 			Title:     e.Title,
 			Location:  e.Location,
 			StartDate: e.StartDate,
@@ -80,7 +72,7 @@ func ToDetailResponse(user models.User) UserDetailResponse {
 	participations := make([]EventInfo, 0, len(user.Participations))
 	for _, e := range user.Participations {
 		participations = append(participations, EventInfo{
-			ID:        e.Event.ID,
+			ID:        e.Event.ID.String(),
 			Title:     e.Event.Title,
 			Location:  e.Event.Location,
 			StartDate: e.Event.StartDate,
@@ -104,10 +96,15 @@ func ToDetailResponse(user models.User) UserDetailResponse {
 func ToListResponse(users []models.User) UserListResponse {
 	var responses []UserResponse
 	for _, user := range users {
+		roles := make([]string, 0, len(user.Roles))
+		for _, r := range user.Roles {
+			roles = append(roles, r.Name)
+		}
 		responses = append(responses, UserResponse{
 			ID:        user.ID,
 			Fullname:  user.Fullname,
 			Email:     user.Email,
+			Roles:     roles,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
 		})
@@ -117,7 +114,7 @@ func ToListResponse(users []models.User) UserListResponse {
 	}
 }
 
-func ToSuccessResponse(id uuid.UUID) SuccessResponse {
+func ToSuccessResponse(id string) SuccessResponse {
 	return SuccessResponse{
 		ID: id,
 	}

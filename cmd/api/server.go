@@ -20,7 +20,7 @@ func NewServer(cfg *config.Config, db *gorm.DB) *Server {
 	router.RedirectFixedPath = false
 
 	router.Use(
-		middlewares.RecoveryMiddleware(), 
+		middlewares.RecoveryMiddleware(),
 		middlewares.ErrorMiddleware(),
 	)
 	server := &Server{

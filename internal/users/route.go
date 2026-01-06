@@ -16,10 +16,10 @@ func SetupRoutes(r *gin.RouterGroup, db *gorm.DB, cfg *config.Config) {
 	users := r.Group("/users")
 	users.Use(middlewares.AuthMiddleware(db, cfg.SecretKey))
 	{
-		users.GET("", handler.GetAllUsers)
-		users.POST("", handler.CreateUser)
-		users.GET("/:id", handler.GetUserByID)
-		users.PUT("/:id", handler.UpdateUser)
-		users.DELETE("/:id", handler.DeleteUser)
+		users.GET("", middlewares.PermissionMiddleware(db, "users.read"), handler.GetAllUsers)
+		users.POST("", middlewares.PermissionMiddleware(db, "users.create"), handler.CreateUser)
+		users.GET("/:id", middlewares.PermissionMiddleware(db, "users.read"), handler.GetUserByID)
+		users.PUT("/:id", middlewares.PermissionMiddleware(db, "users.update"), handler.UpdateUser)
+		users.DELETE("/:id", middlewares.PermissionMiddleware(db, "users.delete"), handler.DeleteUser)
 	}
 }

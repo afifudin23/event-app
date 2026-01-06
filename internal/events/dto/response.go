@@ -8,9 +8,9 @@ import (
 )
 
 type UserInfo struct {
-	ID       uuid.UUID `json:"id"`
-	Fullname string    `json:"fullname"`
-	Email    string    `json:"email"`
+	ID       string `json:"id"`
+	Fullname string `json:"fullname"`
+	Email    string `json:"email"`
 }
 
 type EventResponse struct {

@@ -7,7 +7,6 @@ import (
 	"log"
 	"reflect"
 	"strings"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -49,12 +48,6 @@ func ErrorValidation(err error) map[string]string {
 		return CheckTypeError(typeErr, errorsMap)
 	}
 
-	var parseErr *time.ParseError
-	if errors.As(err, &parseErr) {
-		errorsMap["datetime"] = "Invalid datetime format, must be 'YYYY-MM-DDTHH:MM:SS±HH:MM'"
-		return errorsMap
-	}
-
 	// Validation errors (binding tag)
 	if validationErrors, ok := err.(validator.ValidationErrors); ok {
 		for _, fieldErr := range validationErrors {
@@ -71,6 +64,8 @@ func ErrorValidation(err error) map[string]string {
 				errorsMap[field] = field + " must be at most " + fieldErr.Param() + " characters"
 			case "eqfield":
 				errorsMap[field] = field + " does not match " + strings.ToLower(fieldErr.Param())
+			case "datetime":
+				errorsMap[field] = field + " must be a valid datetime format, must be 'YYYY-MM-DDTHH:MM:SS±HH:MM'"
 			default:
 				errorsMap[field] = field + " is invalid"
 			}

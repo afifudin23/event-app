@@ -10,6 +10,9 @@ type Seeder interface {
 
 func RunAllSeeder(db *gorm.DB) {
 	seeders := []Seeder{
+		NewPermisionSeeder(),
+		NewRoleSeeder(),
+		NewRolePermissionSeeder(),
 		NewUserSeeder(),
 	}
 

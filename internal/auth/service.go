@@ -24,7 +24,7 @@ func NewService(repo users.Repository, cfg *config.Config) Service {
 }
 
 func (s *service) Login(payload dto.UserLoginRequest) (models.User, string, error) {
-	user, err := s.Repo.GetByEmail(payload.Email)
+	user, err := s.Repo.GetByEmail(payload.Email, true)
 	if err != nil {
 		return models.User{}, "", common.BadRequestError("User not found")
 	}
@@ -33,12 +33,23 @@ func (s *service) Login(payload dto.UserLoginRequest) (models.User, string, erro
 		return models.User{}, "", common.BadRequestError("Invalid password")
 	}
 
-	accessToken := security.GenerateToken(user.ID.String(), s.Cfg.SecretKey)
+	roles, err := s.Repo.GetRolesByUserID(user.ID)
+	if err != nil {
+		return models.User{}, "", common.InternalServerError()
+	}
+
+	roleIDs := make([]string, 0)
+	for _, role := range roles {
+		roleIDs = append(roleIDs, role.ID.String())
+	}
+
+	accessToken := security.GenerateToken(user.ID, roleIDs, s.Cfg.SecretKey)
 
 	return user, accessToken, nil
 }
+
 func (s *service) Register(payload dto.UserRegisterRequest) (models.User, string, error) {
-	_, err := s.Repo.GetByEmail(payload.Email)
+	_, err := s.Repo.GetByEmail(payload.Email, false)
 	if err == nil {
 		return models.User{}, "", common.BadRequestError("Email already exists")
 	}
@@ -58,7 +69,31 @@ func (s *service) Register(payload dto.UserRegisterRequest) (models.User, string
 		return models.User{}, "", err
 	}
 
-	accessToken := security.GenerateToken(user.ID.String(), s.Cfg.SecretKey)
+	// DEFAULT ROLE
+	role, err := s.Repo.GetRoleByName("user")
+	if err != nil {
+		return models.User{}, "", common.InternalServerError()
+	}
+
+	if _, err = s.Repo.AssignRoleToUser(models.UserRole{
+		UserID: user.ID,
+		RoleID: role.ID.String(),
+	}); err != nil {
+		return models.User{}, "", common.InternalServerError()
+	}
+
+	roles, err := s.Repo.GetRolesByUserID(user.ID)
+	if err != nil {
+		return models.User{}, "", common.InternalServerError()
+	}
+
+	roleIDs := make([]string, 0)
+	for _, role := range roles {
+		roleIDs = append(roleIDs, role.ID.String())
+	}
+	user.Roles = roles
+
+	accessToken := security.GenerateToken(user.ID, roleIDs, s.Cfg.SecretKey)
 
 	return user, accessToken, nil
 }

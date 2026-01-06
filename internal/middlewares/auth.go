@@ -43,6 +43,7 @@ func AuthMiddleware(db *gorm.DB, secretKey string) gin.HandlerFunc {
 
 		// SET USER ID
 		c.Set("uid", user.ID)
+		c.Set("roleIds", claims.RoleIDs)
 		c.Next()
 	}
 }

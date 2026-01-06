@@ -5,16 +5,14 @@ import (
 	"event-app/internal/models"
 	"event-app/internal/users/dto"
 	"event-app/pkg/security"
-
-	"github.com/google/uuid"
 )
 
 type Service interface {
 	FindAll() ([]models.User, error)
-	FindByID(id uuid.UUID) (models.User, error)
+	FindByID(id string) (models.User, error)
 	Create(payload dto.UserRequest) (models.User, error)
-	Update(id uuid.UUID, payload dto.UserRequest) (models.User, error)
-	Delete(id uuid.UUID) (bool, error)
+	Update(id string, payload dto.UserRequest) (models.User, error)
+	Delete(id string) (bool, error)
 }
 
 type service struct {
@@ -26,10 +24,10 @@ func NewService(repo Repository) Service {
 }
 
 func (s *service) FindAll() ([]models.User, error) {
-	return s.Repo.GetAll()
+	return s.Repo.GetAll(true)
 }
 
-func (s *service) FindByID(id uuid.UUID) (models.User, error) {
+func (s *service) FindByID(id string) (models.User, error) {
 	user, err := s.Repo.GetByID(id, true, true)
 	if err != nil {
 		return models.User{}, common.NotFoundError("User not found")
@@ -38,7 +36,7 @@ func (s *service) FindByID(id uuid.UUID) (models.User, error) {
 }
 
 func (s *service) Create(payload dto.UserRequest) (models.User, error) {
-	if _, err := s.Repo.GetByEmail(payload.Email); err == nil {
+	if _, err := s.Repo.GetByEmail(payload.Email, false); err == nil {
 		return models.User{}, common.BadRequestError("Email already exists")
 	}
 	passwordHashed, err := security.HashPassword(payload.Password)
@@ -52,14 +50,14 @@ func (s *service) Create(payload dto.UserRequest) (models.User, error) {
 	})
 }
 
-func (s *service) Update(id uuid.UUID, payload dto.UserRequest) (models.User, error) {
+func (s *service) Update(id string, payload dto.UserRequest) (models.User, error) {
 	user, err := s.Repo.GetByID(id, false, false)
 	if err != nil {
 		return models.User{}, common.NotFoundError("User not found")
 	}
 
 	// CHECK DUPLICATE EMAIL
-	existingEmail, err := s.Repo.GetByEmail(payload.Email)
+	existingEmail, err := s.Repo.GetByEmail(payload.Email, false)
 	if err == nil && existingEmail.ID != user.ID {
 		return models.User{}, common.BadRequestError("Email already exists")
 	}
@@ -75,7 +73,7 @@ func (s *service) Update(id uuid.UUID, payload dto.UserRequest) (models.User, er
 	return s.Repo.Update(user)
 }
 
-func (s *service) Delete(id uuid.UUID) (bool, error) {
+func (s *service) Delete(id string) (bool, error) {
 	if _, err := s.Repo.GetByID(id, false, false); err != nil {
 		return false, common.NotFoundError("User not found")
 	}

@@ -55,8 +55,10 @@ func (s *service) Create(uid uuid.UUID, payload dto.EventRequest) (models.Event,
 	// if _, err := s.Repo.GetByTitle(payload.Title); err == nil {
 	// 	return models.Event{}, common.BadRequestError("Title already exists")
 	// }
-
-	if err := validateEventDate(payload.StartDate, payload.EndDate); err != nil {
+	
+	startDate, _ := time.Parse(time.RFC3339, payload.StartDate)
+	endDate, _ := time.Parse(time.RFC3339, payload.EndDate)
+	if err := validateEventDate(startDate, endDate); err != nil {
 		return models.Event{}, err
 	}
 
@@ -65,8 +67,8 @@ func (s *service) Create(uid uuid.UUID, payload dto.EventRequest) (models.Event,
 		Description: payload.Description,
 		Location:    payload.Location,
 		Capacity:    payload.Capacity,
-		StartDate:   payload.StartDate,
-		EndDate:     payload.EndDate,
+		StartDate:   startDate,
+		EndDate:     endDate,
 		CreatedBy:   uid,
 	})
 }
@@ -76,14 +78,19 @@ func (s *service) Update(id uuid.UUID, payload dto.EventRequest) (models.Event, 
 	if err != nil {
 		return models.Event{}, common.NotFoundError("Event not found")
 	}
+	startDate, _ := time.Parse(time.RFC3339, payload.StartDate)
+	endDate, _ := time.Parse(time.RFC3339, payload.EndDate)
+	if err := validateEventDate(startDate, endDate); err != nil {
+		return models.Event{}, err
+	}
 
 	// UPDATE
 	event.Title = payload.Title
 	event.Description = payload.Description
 	event.Location = payload.Location
 	event.Capacity = payload.Capacity
-	event.StartDate = payload.StartDate
-	event.EndDate = payload.EndDate
+	event.StartDate = startDate
+	event.EndDate = endDate
 
 	return s.Repo.Update(event)
 }

@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type Handler struct {
@@ -39,7 +38,7 @@ func (h *Handler) GetUserByID(c *gin.Context) {
 		return
 	}
 
-	user, err := h.Service.FindByID(uuid.MustParse(params.ID))
+	user, err := h.Service.FindByID(params.ID)
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
@@ -81,7 +80,7 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.Service.Update(uuid.MustParse(params.ID), payload)
+	user, err := h.Service.Update(params.ID, payload)
 
 	if err != nil {
 		common.ErrorHandler(c, err)
@@ -98,10 +97,10 @@ func (h *Handler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	_, err := h.Service.Delete(uuid.MustParse(params.ID))
+	_, err := h.Service.Delete(params.ID)
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToSuccessResponse(uuid.MustParse(params.ID))))
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToSuccessResponse(params.ID)))
 }
