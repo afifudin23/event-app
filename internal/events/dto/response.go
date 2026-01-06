@@ -3,8 +3,6 @@ package dto
 import (
 	"event-app/internal/models"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type UserInfo struct {
@@ -14,7 +12,7 @@ type UserInfo struct {
 }
 
 type EventResponse struct {
-	ID          uuid.UUID `json:"id"`
+	ID          string    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Location    string    `json:"location"`
@@ -27,7 +25,7 @@ type EventResponse struct {
 }
 
 type EventDetailResponse struct {
-	ID           uuid.UUID  `json:"id"`
+	ID           string     `json:"id"`
 	Title        string     `json:"title"`
 	Description  string     `json:"description"`
 	Location     string     `json:"location"`
@@ -46,7 +44,7 @@ type EventListResponse struct {
 }
 
 type SuccessResponse struct {
-	ID uuid.UUID `json:"id"`
+	ID string `json:"id"`
 }
 
 func ToDetailResponse(event models.Event) EventDetailResponse {
@@ -101,7 +99,7 @@ func ToListResponse(events []models.Event) EventListResponse {
 	}
 }
 
-func ToSuccessResponse(id uuid.UUID) SuccessResponse {
+func ToSuccessResponse(id string) SuccessResponse {
 	return SuccessResponse{
 		ID: id,
 	}

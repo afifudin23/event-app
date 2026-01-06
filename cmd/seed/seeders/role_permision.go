@@ -20,9 +20,11 @@ var RolePermissions = map[string][]string{
 	},
 	"admin": {
 		"events.*",
+		"event_participants.read",
 	},
 	"user": {
-		"events.read",
+		"event_participants.register",
+		"event_participants.cancel",
 	},
 }
 

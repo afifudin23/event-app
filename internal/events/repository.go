@@ -3,16 +3,15 @@ package events
 import (
 	"event-app/internal/models"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Repository interface {
 	GetAll() ([]models.Event, error)
-	GetByID(id uuid.UUID, loadCreatedBy bool, loadParticipants bool) (models.Event, error)
+	GetByID(id string, loadCreatedBy bool, loadParticipants bool) (models.Event, error)
 	Create(event models.Event) (models.Event, error)
 	Update(event models.Event) (models.Event, error)
-	Delete(id uuid.UUID) (bool, error)
+	Delete(id string) (bool, error)
 }
 
 type repository struct {
@@ -34,7 +33,7 @@ func (r *repository) Create(event models.Event) (models.Event, error) {
 	return event, err
 }
 
-func (r *repository) GetByID(id uuid.UUID, loadCreatedBy bool, loadParticipants bool) (models.Event, error) {
+func (r *repository) GetByID(id string, loadCreatedBy bool, loadParticipants bool) (models.Event, error) {
 	var event models.Event
 	query := r.DB
 	if loadCreatedBy {
@@ -56,7 +55,7 @@ func (r *repository) Update(event models.Event) (models.Event, error) {
 	return event, err
 }
 
-func (r *repository) Delete(id uuid.UUID) (bool, error) {
+func (r *repository) Delete(id string) (bool, error) {
 	err := r.DB.Delete(&models.Event{}, "id = ?", id).Error
 	return err == nil, err
 }

@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type Handler struct {
@@ -26,7 +25,7 @@ func (h *Handler) GetAllEventParticipants(c *gin.Context) {
 		return
 	}
 
-	event_participants, err := h.Service.FindAll(uuid.MustParse(params.ID))
+	event_participants, err := h.Service.FindAll(params.ID)
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
@@ -45,17 +44,31 @@ func (h *Handler) RegisterEventParticipant(c *gin.Context) {
 		return
 	}
 
-	uidStr := c.MustGet("uid").(string)
-	uid, err := uuid.Parse(uidStr)
-	if err != nil {
-		common.ErrorHandler(c, common.UnauthorizedError("Invalid user id"))
-		return
-	}
+	uid, _ := c.Get("uid")
 
-	event_participant, err := h.Service.Register(uid, uuid.MustParse(params.ID))
+	event_participant, err := h.Service.Register(uid.(string), params.ID)
 	if err != nil {
 		common.ErrorHandler(c, err)
 		return
 	}
 	c.JSON(http.StatusCreated, common.SuccessResponse(dto.ToSuccessResponse(event_participant.ID)))
+}
+
+func (h *Handler) CancelEventParticipant(c *gin.Context) {
+	var params dto.Params
+
+	if err := c.ShouldBindUri(&params); err != nil {
+		details := common.ErrorValidation(err)
+		common.ErrorHandler(c, common.ValidationError(details))
+		return
+	}
+
+	uid, _ := c.Get("uid")
+
+	_, err := h.Service.Cancel(uid.(string), params.ID)
+	if err != nil {
+		common.ErrorHandler(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, common.SuccessResponse(dto.ToSuccessResponse(params.ID)))
 }

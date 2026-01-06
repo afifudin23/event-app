@@ -43,10 +43,21 @@ func (s *service) Create(payload dto.UserRequest) (models.User, error) {
 	if err != nil {
 		return models.User{}, err
 	}
+
+	// GET ROLES
+	roles, err := s.Repo.GetRolesByName(payload.Roles)
+	if err != nil {
+		return models.User{}, common.InternalServerError()
+	}
+	if len(roles) != len(payload.Roles) {
+		return models.User{}, common.BadRequestError("Invalid roles")
+	}
+
 	return s.Repo.Create(models.User{
 		Fullname: payload.Fullname,
 		Email:    payload.Email,
 		Password: passwordHashed,
+		Roles: roles,
 	})
 }
 

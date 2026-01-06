@@ -29,6 +29,10 @@ var Permissions = []string{
 	"events.create",
 	"events.update",
 	"events.delete",
+
+	"event_participants.read",
+	"event_participants.register",
+	"event_participants.cancel",
 }
 
 func (s *PermisionSeeder) Run(db *gorm.DB) {

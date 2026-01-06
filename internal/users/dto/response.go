@@ -60,7 +60,7 @@ func ToDetailResponse(user models.User) UserDetailResponse {
 	events := make([]EventInfo, 0, len(user.Events))
 	for _, e := range user.Events {
 		events = append(events, EventInfo{
-			ID:        e.ID.String(),
+			ID:        e.ID,
 			Title:     e.Title,
 			Location:  e.Location,
 			StartDate: e.StartDate,
@@ -72,7 +72,7 @@ func ToDetailResponse(user models.User) UserDetailResponse {
 	participations := make([]EventInfo, 0, len(user.Participations))
 	for _, e := range user.Participations {
 		participations = append(participations, EventInfo{
-			ID:        e.Event.ID.String(),
+			ID:        e.Event.ID,
 			Title:     e.Event.Title,
 			Location:  e.Event.Location,
 			StartDate: e.Event.StartDate,

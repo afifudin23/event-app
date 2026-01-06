@@ -11,7 +11,8 @@ type Repository interface {
 	GetByID(id string, loadEvents bool, loadParticipations bool) (models.User, error)
 	GetByEmail(email string, loadRoles bool) (models.User, error)
 	GetRolesByUserID(userID string) ([]models.Role, error)
-	GetRoleByName(name string) (models.Role, error)
+	GetRolesByName(roleName []string) ([]models.Role, error)
+	GetRoleByName(roleName string) (models.Role, error)
 	AssignRoleToUser(userRole models.UserRole) (bool, error)
 	Create(user models.User) (models.User, error)
 	Update(user models.User) (models.User, error)
@@ -86,9 +87,14 @@ func (r *repository) GetRolesByUserID(userID string) ([]models.Role, error) {
 	return roles, err
 }
 
-func (r *repository) GetRoleByName(name string) (models.Role, error) {
+func (r *repository) GetRolesByName(roleName []string) ([]models.Role, error) {
+	var roles []models.Role
+	err := r.DB.Where("name IN ?", roleName).Find(&roles).Error
+	return roles, err
+}
+func (r *repository) GetRoleByName(roleName string) (models.Role, error) {
 	var role models.Role
-	err := r.DB.First(&role, "name = ?", name).Error
+	err := r.DB.First(&role, "name = ?", roleName).Error
 	return role, err
 }
 

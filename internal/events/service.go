@@ -5,16 +5,14 @@ import (
 	"event-app/internal/events/dto"
 	"event-app/internal/models"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Service interface {
 	FindAll() ([]models.Event, error)
-	FindByID(id uuid.UUID) (models.Event, error)
-	Create(uid uuid.UUID, payload dto.EventRequest) (models.Event, error)
-	Update(id uuid.UUID, payload dto.EventRequest) (models.Event, error)
-	Delete(id uuid.UUID) (bool, error)
+	FindByID(id string) (models.Event, error)
+	Create(uid string, payload dto.EventRequest) (models.Event, error)
+	Update(id string, payload dto.EventRequest) (models.Event, error)
+	Delete(id string) (bool, error)
 }
 
 type service struct {
@@ -43,7 +41,7 @@ func (s *service) FindAll() ([]models.Event, error) {
 	return s.Repo.GetAll()
 }
 
-func (s *service) FindByID(id uuid.UUID) (models.Event, error) {
+func (s *service) FindByID(id string) (models.Event, error) {
 	event, err := s.Repo.GetByID(id, true, true)
 	if err != nil {
 		return models.Event{}, common.NotFoundError("Event not found")
@@ -51,11 +49,11 @@ func (s *service) FindByID(id uuid.UUID) (models.Event, error) {
 	return event, err
 }
 
-func (s *service) Create(uid uuid.UUID, payload dto.EventRequest) (models.Event, error) {
+func (s *service) Create(uid string, payload dto.EventRequest) (models.Event, error) {
 	// if _, err := s.Repo.GetByTitle(payload.Title); err == nil {
 	// 	return models.Event{}, common.BadRequestError("Title already exists")
 	// }
-	
+
 	startDate, _ := time.Parse(time.RFC3339, payload.StartDate)
 	endDate, _ := time.Parse(time.RFC3339, payload.EndDate)
 	if err := validateEventDate(startDate, endDate); err != nil {
@@ -73,7 +71,7 @@ func (s *service) Create(uid uuid.UUID, payload dto.EventRequest) (models.Event,
 	})
 }
 
-func (s *service) Update(id uuid.UUID, payload dto.EventRequest) (models.Event, error) {
+func (s *service) Update(id string, payload dto.EventRequest) (models.Event, error) {
 	event, err := s.Repo.GetByID(id, false, false)
 	if err != nil {
 		return models.Event{}, common.NotFoundError("Event not found")
@@ -95,7 +93,7 @@ func (s *service) Update(id uuid.UUID, payload dto.EventRequest) (models.Event, 
 	return s.Repo.Update(event)
 }
 
-func (s *service) Delete(id uuid.UUID) (bool, error) {
+func (s *service) Delete(id string) (bool, error) {
 	if _, err := s.Repo.GetByID(id, false, false); err != nil {
 		return false, common.NotFoundError("Event not found")
 	}
